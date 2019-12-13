@@ -1,20 +1,24 @@
-const fs = require('fs');
-const path = require("path");
-const util = require('util');
-
-const astat = util.promisify(fs.stat);
-const areaddir = util.promisify(fs.readdir);
-const areadfile = util.promisify(fs.readFile);
+const nosqlite = require("nosqlite");
 
 const INPUTDIR = "maildir/";
 
 async function search(searchterm) {
-    for await (let filename of getFiles(INPUTDIR)) {
-        let file = await areadfile(filename);
-        if (file.includes(searchterm)) {
-            console.log("Found " + searchterm + " in " + filename);
+    //Open the database, we can return if it doesn't exist
+    let connection = new (nosqlite.Connection)(DATABASE);
+    let db = connection.database("words_to_files");
+    db.exists((exists) => {
+        if (!exists) {
+            return undefined;
         }
-    }
+    });
+
+    return db.get(searchterm, (err, obj) => {
+        if (!err) {
+            return filenames
+        } else {
+            return undefined;
+        }
+    });
 }
 
 async function * getFiles(dir) {
