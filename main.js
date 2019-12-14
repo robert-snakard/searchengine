@@ -6,11 +6,27 @@ async function search(searchterm) {
     //Open the database, we can return if it doesn't exist
     let connection = new (nosqlite.Connection)(DATABASE);
     let db = connection.database("words_to_files");
+    let fuzzy = connection.database("fuzzy_words");
     db.exists((exists) => {
         if (!exists) {
             return undefined;
         }
     });
+    fuzzy.exists((exists) => {
+        if (!exists) {
+            return undefined;
+        }
+    });
+
+    return fuzzy.get(searchterm, (err, obj) => {
+        if (err) {
+            // return nothing if we don't have the search term
+            return undefined;
+        } else {
+            for (word of obj.words) {
+                daatabase.get(word);
+                }
+        }
 
     return db.get(searchterm, (err, obj) => {
         if (!err) {
